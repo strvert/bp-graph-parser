@@ -1,0 +1,8 @@
+Begin Object Class=/Script/BlueprintGraph.K2Node_VariableGet Name="K2Node_VariableGet_395"
+   VariableReference=(MemberName="CharacterMovement",bSelfContext=True)
+   NodePosX=1936
+   NodePosY=432
+   NodeGuid=BD86AE9841EA93FF1389A1BD467BC44C
+   CustomProperties Pin (PinId=748E01CC47306D255CF525BAE7A4D26C,PinName="CharacterMovement",PinFriendlyName=NSLOCTEXT("UObjectDisplayNames", "Character:CharacterMovement", "Character Movement"),Direction="EGPD_Output",PinType.PinCategory="object",PinType.PinSubCategory="",PinType.PinSubCategoryObject=Class'"/Script/Engine.CharacterMovementComponent"',PinType.PinSubCategoryMemberReference=(),PinType.PinValueType=(),PinType.ContainerType=None,PinType.bIsReference=False,PinType.bIsConst=False,PinType.bIsWeakPointer=False,PinType.bIsUObjectWrapper=True,LinkedTo=(K2Node_VariableSet_480 841DA41A4D1814B8850D3B8075FD5460,K2Node_VariableSet_462 CAB5F96C49178D415ACA1A9C0C0AED57,),PersistentGuid=00000000000000000000000000000000,bHidden=False,bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)
+   CustomProperties Pin (PinId=19BFDBD7431A6979956747AC5496506E,PinName="self",PinFriendlyName=NSLOCTEXT("K2Node", "Target", "Target"),PinType.PinCategory="object",PinType.PinSubCategory="",PinType.PinSubCategoryObject=Class'"/Script/Engine.Character"',PinType.PinSubCategoryMemberReference=(),PinType.PinValueType=(),PinType.ContainerType=None,PinType.bIsReference=False,PinType.bIsConst=False,PinType.bIsWeakPointer=False,PinType.bIsUObjectWrapper=False,PersistentGuid=00000000000000000000000000000000,bHidden=True,bNotConnectable=False,bDefaultValueIsReadOnly=False,bDefaultValueIsIgnored=False,bAdvancedView=False,bOrphanedPin=False,)
+End Object
