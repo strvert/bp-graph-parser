@@ -1,9 +1,9 @@
 use nom::{
     branch::{alt, permutation},
-    bytes::complete::{escaped_transform, tag, take_while_m_n},
+    bytes::complete::{escaped_transform, tag, take_till1, take_until1, take_while_m_n},
     character::{
         complete,
-        complete::{alphanumeric1, char, digit1, multispace0, none_of},
+        complete::{alphanumeric1, char, digit1, multispace0, none_of, space1},
         is_hex_digit,
     },
     combinator::{map, map_res, value},
@@ -14,7 +14,10 @@ use nom::{
 };
 use uuid::Uuid;
 
-use super::{ast::Prop, prop::prop_kv};
+use super::{
+    ast::{LinkedTo, Prop},
+    prop::prop_kv,
+};
 
 pub fn string_literal(s: &str) -> IResult<&str, String> {
     alt((
@@ -72,6 +75,20 @@ pub fn boolean(s: &str) -> IResult<&str, bool> {
     })(s)
 }
 
+pub fn linkedto_list_literal(s: &str) -> IResult<&str, Vec<LinkedTo>> {
+    alt((
+        map(tag("()"), |_| Vec::new()),
+        delimited(
+            char('('),
+            separated_list0(
+                permutation((multispace0, tag(","), multispace0)),
+                linked_object_literal,
+            ),
+            alt((tag(",)"), tag(")"))),
+        ),
+    ))(s)
+}
+
 pub fn kv_list_literal(s: &str) -> IResult<&str, Vec<Prop>> {
     alt((
         map(tag("()"), |_| Vec::new()),
@@ -103,7 +120,7 @@ pub fn nsloc_text_literal(s: &str) -> IResult<&str, (String, String, String)> {
 
 pub fn object_literal(s: &str) -> IResult<&str, (String, String)> {
     alt((
-        map(tag("None"), |v| ("None".to_string(), "None".to_string())),
+        map(tag("None"), |_| ("None".to_string(), "None".to_string())),
         map(
             permutation((alphanumeric1, tag("'"), string_literal, tag("'"))),
             |v| (v.0.to_owned(), v.2),
@@ -111,10 +128,79 @@ pub fn object_literal(s: &str) -> IResult<&str, (String, String)> {
     ))(s)
 }
 
+pub fn linked_object_literal(s: &str) -> IResult<&str, LinkedTo> {
+    map(permutation((take_until1(" "), space1, uuid_literal)), |v| {
+        LinkedTo {
+            name: v.0.to_owned(),
+            uuid: v.2,
+        }
+    })(s)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::parser::ast::{Prop, PropValue};
+
+    #[test]
+    fn parse_linkedto_list_literal() {
+        assert_eq!(
+            linkedto_list_literal("(K2Node_DynamicCast_46 5EE02C3B480C2249B48954B390C035D6,K2Node_CallFunction_1093 0710E8C14EFFED0DD9E024BCB29F23C3,)"),
+            Ok((
+                "",
+                vec![
+                    LinkedTo {
+                        name: "K2Node_DynamicCast_46".to_string(),
+                        uuid: Uuid::parse_str("5EE02C3B480C2249B48954B390C035D6").unwrap()
+                    },
+                    LinkedTo {
+                        name: "K2Node_CallFunction_1093".to_string(),
+                        uuid: Uuid::parse_str("0710E8C14EFFED0DD9E024BCB29F23C3").unwrap()
+                    }
+                ]
+            ))
+        );
+        assert_eq!(
+            linkedto_list_literal("(K2Node_DynamicCast_46 5EE02C3B480C2249B48954B390C035D6,K2Node_CallFunction_1093 0710E8C14EFFED0DD9E024BCB29F23C3)"),
+            Ok((
+                "",
+                vec![
+                    LinkedTo {
+                        name: "K2Node_DynamicCast_46".to_string(),
+                        uuid: Uuid::parse_str("5EE02C3B480C2249B48954B390C035D6").unwrap()
+                    },
+                    LinkedTo {
+                        name: "K2Node_CallFunction_1093".to_string(),
+                        uuid: Uuid::parse_str("0710E8C14EFFED0DD9E024BCB29F23C3").unwrap()
+                    }
+                ]
+            ))
+        );
+    }
+
+    #[test]
+    fn parse_linked_object_literal() {
+        assert_eq!(
+            linked_object_literal("K2Node_InputAxisEvent_160 FCB984164512320C9D4784B5D1D93263"),
+            Ok((
+                "",
+                LinkedTo {
+                    name: "K2Node_InputAxisEvent_160".to_string(),
+                    uuid: Uuid::parse_str("FCB984164512320C9D4784B5D1D93263").unwrap()
+                }
+            ))
+        );
+        assert_eq!(
+            linked_object_literal("K2Node_DynamicCast_46 5EE02C3B480C2249B48954B390C035D6"),
+            Ok((
+                "",
+                LinkedTo {
+                    name: "K2Node_DynamicCast_46".to_string(),
+                    uuid: Uuid::parse_str("5EE02C3B480C2249B48954B390C035D6").unwrap()
+                }
+            ))
+        );
+    }
 
     #[test]
     fn parse_nsloc_text_literal() {
@@ -135,8 +221,7 @@ mod tests {
 
     #[test]
     fn parse_kv_list() {
-        let sample = r#"(PinId=0E1A655D4333CDC682CF73A1BB84F0FF,PinName="self",PinFriendlyName=NSLOCTEXT("K2Node", "Target", "Target"),PinToolTip="ターゲット\nGameplay Statics オブジェクト参照",PinType.PinSubCategory="",PinType.PinSubCategoryObject=Class'"/Script/Engine.GameplayStatics"',PinType.PinSubCategoryMemberReference=(),PinType.PinValueType=(PinType.ContainerType=None,PinType.bIsReference=False,PinType.PinValueType=(PinType.ContainerType=None,PinType.bIsReference=False)),DefaultObject="/Script/Engine.Default__GameplayStatics",MemberParent=BlueprintGeneratedClass'"/Game/Blueprints/PlayerCharacter.PlayerCharacter_C"',PersistentGuid=00000000000000000000000000000000,bOrphanedPin=True,)"#;
-        println!("{:#?}", kv_list_literal(sample));
+        let sample = r#"(PinId=0E1A655D4333CDC682CF73A1BB84F0FF,PinName="self",PinFriendlyName=NSLOCTEXT("K2Node", "Target", "Target"),PinToolTip="ターゲット\nGameplay Statics オブジェクト参照",PinType.PinSubCategory="",PinType.PinSubCategoryObject=Class'"/Script/Engine.GameplayStatics"',PinType.PinSubCategoryMemberReference=(),PinType.PinValueType=(PinType.ContainerType=None,PinType.bIsReference=False,PinType.PinValueType=(PinType.ContainerType=None,PinType.bIsReference=False)),DefaultObject="/Script/Engine.Default__GameplayStatics",MemberParent=BlueprintGeneratedClass'"/Game/Blueprints/PlayerCharacter.PlayerCharacter_C"',LinkedTo=(K2Node_InputAxisEvent_160 FCB984164512320C9D4784B5D1D93263,),PersistentGuid=00000000000000000000000000000000,bOrphanedPin=True,)"#;
         assert_eq!(
             kv_list_literal(sample),
             Ok((
@@ -222,6 +307,13 @@ mod tests {
                             "BlueprintGeneratedClass".to_owned(),
                             "/Game/Blueprints/PlayerCharacter.PlayerCharacter_C".to_owned()
                         )
+                    },
+                    Prop {
+                        key: "LinkedTo".to_owned(),
+                        value: PropValue::LinkedToList(vec![LinkedTo {
+                            name: "K2Node_InputAxisEvent_160".to_owned(),
+                            uuid: Uuid::parse_str("FCB984164512320C9D4784B5D1D93263").unwrap()
+                        }])
                     },
                     Prop {
                         key: "PersistentGuid".to_owned(),

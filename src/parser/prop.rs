@@ -1,20 +1,21 @@
 use nom::{
     branch::{alt, permutation},
-    bytes::complete::take_till1,
+    bytes::complete::{tag, take_till1, take_while1},
     character::{
         complete,
-        complete::{char, multispace0},
-        is_space,
+        complete::{alphanumeric1, char, multispace0, space1},
+        is_newline, is_space,
     },
     combinator::map,
-    IResult,
+    error::{Error, ErrorKind},
+    Err, IResult,
 };
 
 use super::{
-    ast::{Prop, PropValue},
+    ast::{CustomProp, CustomPropValue, LinkedTo, Prop, PropValue},
     literal::{
-        boolean, double, kv_list_literal, nsloc_text_literal, object_literal, string_literal,
-        uuid_literal,
+        boolean, double, kv_list_literal, linkedto_list_literal, nsloc_text_literal,
+        object_literal, string_literal, uuid_literal,
     },
 };
 
@@ -28,6 +29,7 @@ pub fn prop_value(s: &str) -> IResult<&str, PropValue> {
         map(double, |v| PropValue::Double(v)),
         map(complete::i64, |v| PropValue::Integer(v)),
         map(kv_list_literal, |v| PropValue::PropList(v)),
+        map(linkedto_list_literal, |v| PropValue::LinkedToList(v)),
     ))(s)
 }
 
@@ -49,11 +51,103 @@ pub fn prop_kv(s: &str) -> IResult<&str, Prop> {
     ))
 }
 
+pub fn prop_custom_props(s: &str) -> IResult<&str, CustomProp> {
+    let (ns, (_, _, name, _)) =
+        permutation((tag("CustomProperties"), space1, alphanumeric1, space1))(s)?;
+    let (ns, prop_code) = take_while1(|c| !is_newline(c as u8))(ns)?;
+    let custom_prop = match name {
+        "Pin" => map(kv_list_literal, |v| CustomProp {
+            name: name.to_string(),
+            value: CustomPropValue::Pin(v),
+        })(prop_code)?,
+        _ => return Err(Err::Error(Error::new(s, ErrorKind::Fail))),
+    };
+    Ok((ns, custom_prop.1))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use uuid::Uuid;
     use assert_approx_eq::assert_approx_eq;
+    use uuid::Uuid;
+
+    #[test]
+    fn parse_custom_props() {
+        let sample = r#"CustomProperties Pin (PinId=F6D0DA4A4AA531533341018A20422309,PinName="self",PinFriendlyName=NSLOCTEXT("K2Node", "Target", "Target"),PinType.PinCategory="object",PinType.PinSubCategory="",PinType.PinSubCategoryObject=Class'"/Script/UMG.Button"',PinType.PinSubCategoryMemberReference=(),PinType.ContainerType=None,PinType.bIsReference=True,LinkedTo=(K2Node_VariableGet_17 570BAD4542CBB0285413EEAB4F6DBDDA,),PersistentGuid=00000000000000000000000000000000,bOrphanedPin=False,)"#;
+        assert_eq!(
+            prop_custom_props(sample),
+            Ok((
+                "",
+                CustomProp {
+                    name: "Pin".to_string(),
+                    value: CustomPropValue::Pin(vec![
+                        Prop {
+                            key: "PinId".to_owned(),
+                            value: PropValue::Uuid(
+                                Uuid::parse_str("F6D0DA4A4AA531533341018A20422309").unwrap()
+                            )
+                        },
+                        Prop {
+                            key: "PinName".to_owned(),
+                            value: PropValue::String("self".to_owned())
+                        },
+                        Prop {
+                            key: "PinFriendlyName".to_owned(),
+                            value: PropValue::NslocText(
+                                "K2Node".to_owned(),
+                                "Target".to_owned(),
+                                "Target".to_owned()
+                            )
+                        },
+                        Prop {
+                            key: "PinType.PinCategory".to_owned(),
+                            value: PropValue::String("object".to_owned())
+                        },
+                        Prop {
+                            key: "PinType.PinSubCategory".to_owned(),
+                            value: PropValue::String("".to_owned())
+                        },
+                        Prop {
+                            key: "PinType.PinSubCategoryObject".to_owned(),
+                            value: PropValue::Object(
+                                "Class".to_owned(),
+                                "/Script/UMG.Button".to_owned()
+                            )
+                        },
+                        Prop {
+                            key: "PinType.PinSubCategoryMemberReference".to_owned(),
+                            value: PropValue::PropList(Vec::new())
+                        },
+                        Prop {
+                            key: "PinType.ContainerType".to_owned(),
+                            value: PropValue::Object("None".to_owned(), "None".to_owned())
+                        },
+                        Prop {
+                            key: "PinType.bIsReference".to_owned(),
+                            value: PropValue::Boolean(true)
+                        },
+                        Prop {
+                            key: "LinkedTo".to_owned(),
+                            value: PropValue::LinkedToList(vec![LinkedTo {
+                                name: "K2Node_VariableGet_17".to_owned(),
+                                uuid: Uuid::parse_str("570BAD4542CBB0285413EEAB4F6DBDDA").unwrap()
+                            }])
+                        },
+                        Prop {
+                            key: "PersistentGuid".to_owned(),
+                            value: PropValue::Uuid(
+                                Uuid::parse_str("00000000000000000000000000000000").unwrap()
+                            )
+                        },
+                        Prop {
+                            key: "bOrphanedPin".to_owned(),
+                            value: PropValue::Boolean(false)
+                        },
+                    ])
+                }
+            ))
+        );
+    }
 
     #[test]
     fn parse_prop_kv_integer() {
