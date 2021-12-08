@@ -1,5 +1,5 @@
 [package]
-name = "k2node-to-json"
+name = "bp-graph-parser"
 version = "0.1.0"
 edition = "2018"
 
@@ -12,3 +12,6 @@ uuid = { version = "0.8", features = ["v4"] }
 strum = { version = "0.23.0", features = ["derive"] }
 strum_macros = "0.23.0"
 csv = "1.1"
+nom = {version = "7.1.0", features = ["alloc"] }
+thiserror = "1.0.30"
+assert_approx_eq = "1.1.0"

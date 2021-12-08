@@ -1,0 +1,23 @@
+Begin Map
+   Begin Level
+      Begin Actor Class=/Script/Engine.CameraActor Name=CameraActor_13 Archetype=/Script/Engine.CameraActor'/Script/Engine.Default__CameraActor'
+         Begin Object Class=/Script/Engine.SceneComponent Name="SceneComponent" Archetype=SceneComponent'/Script/Engine.Default__CameraActor:SceneComponent'
+         End Object
+         Begin Object Class=/Script/Engine.CameraComponent Name="CameraComponent" Archetype=CameraComponent'/Script/Engine.Default__CameraActor:CameraComponent'
+         End Object
+         Begin Object Name="SceneComponent"
+            RelativeLocation=(X=-560.000000,Y=-1080.000000,Z=330.000000)
+            RelativeRotation=(Pitch=0.000000,Yaw=-45.000000,Roll=0.000000)
+         End Object
+         Begin Object Name="CameraComponent"
+            AttachParent="SceneComponent"
+         End Object
+         CameraComponent="CameraComponent"
+         SceneComponent="SceneComponent"
+         RootComponent="SceneComponent"
+         ActorLabel="CameraActor"
+      End Actor
+   End Level
+Begin Surface
+End Surface
+End Map

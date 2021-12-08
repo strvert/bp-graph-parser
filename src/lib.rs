@@ -6,17 +6,32 @@ pub mod node;
 pub mod parser;
 pub mod pin;
 
-pub fn to_json(k2node_code: &str) -> Result<String> {
-    let node =
-        Node::parse_from_object_code(k2node_code).context("オブジェクトの構築に失敗しました")?;
-    println!("{:?}", node);
-    Ok("aa".to_owned())
+pub fn parse_graph(_graph_code: &str) -> String {
+    "".to_string()
+    // let tokens = parser::tokenize(&graph_code);
+    // "hoge".to_string()
 }
 
-// #[cfg(test)]
-// mod tests {
-//     #[test]
-//     fn it_works() {
-//         assert_eq!(2 + 2, 4);
-//     }
+// pub fn to_json(k2node_code: &str) -> Result<String> {
+//     let node =
+//         Node::from_object_code(k2node_code).context("オブジェクトの構築に失敗しました")?;
+//     println!("{:#?}", node);
+//     Ok("aa".to_owned())
 // }
+
+#[cfg(test)]
+mod tests {
+    // use super::*;
+    // use std::fs;
+
+    // #[test]
+    // fn parse() {
+    //     let _result = fs::read_dir("./k2node_codes").unwrap().map(|entry| {
+    //         let path = entry.unwrap().path();
+    //         let code = fs::read_to_string(path.to_str().unwrap()).unwrap();
+    //         let json = to_json(&code);
+    //         assert!(json.is_err(), "ファイルのパースに失敗しました");
+    //         json
+    //     });
+    // }
+}
