@@ -9,7 +9,7 @@ use nom::{
     bytes::complete::{tag, take_until1},
     character::complete::{alphanumeric1, line_ending, multispace0, space0},
     combinator::{eof, map, opt, recognize},
-    multi::separated_list0,
+    multi::{many1, separated_list0},
     IResult,
 };
 
@@ -91,6 +91,10 @@ pub fn object(s: &str) -> IResult<&str, Object> {
             elements: v.1,
         },
     )(s)
+}
+
+pub fn objects(s: &str) -> IResult<&str, Vec<Object>> {
+    many1(map(permutation((object, multispace0)), |v| v.0))(s)
 }
 
 #[cfg(test)]

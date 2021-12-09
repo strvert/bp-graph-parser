@@ -5,8 +5,8 @@ pub mod pin;
 
 use parser::ast::Object;
 
-pub fn parse_graph(graph_code: &str) -> Object {
-    parser::object::object(graph_code).unwrap().1
+pub fn parse_graph(graph_code: &str) -> Vec<Object> {
+    parser::object::objects(graph_code).unwrap().1
 }
 
 // pub fn to_json(k2node_code: &str) -> Result<String> {
