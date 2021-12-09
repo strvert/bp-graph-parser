@@ -17,6 +17,7 @@ pub enum PropValue {
     ObjectReference(String, String),
     LinkedToList(Vec<LinkedTo>),
     PropList(Vec<Prop>),
+    Other(String),
 }
 
 #[derive(Debug, PartialEq)]

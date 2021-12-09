@@ -12,7 +12,7 @@ use nom::{
 };
 
 use super::{
-    ast::{CustomProp, CustomPropValue, Prop, PropValue, LinkedTo},
+    ast::{CustomProp, CustomPropValue, Prop, PropValue},
     literal::{
         boolean, double, kv_list_literal, linkedto_list_literal, nsloc_text_literal,
         object_literal, string_literal, uuid_literal,
@@ -30,6 +30,7 @@ pub fn prop_value(s: &str) -> IResult<&str, PropValue> {
         map(complete::i64, |v| PropValue::Integer(v)),
         map(kv_list_literal, |v| PropValue::PropList(v)),
         map(linkedto_list_literal, |v| PropValue::LinkedToList(v)),
+        map(alphanumeric1, |v: &str| PropValue::Other(v.to_string())),
     ))(s)
 }
 
