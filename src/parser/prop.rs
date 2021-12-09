@@ -57,7 +57,7 @@ pub fn prop_custom_props(s: &str) -> IResult<&str, CustomProp> {
     let (ns, prop_code) = take_while1(|c| !is_newline(c as u8))(ns)?;
     let custom_prop = match name {
         "Pin" => map(kv_list_literal, |v| CustomProp {
-            name: name.to_string(),
+            domain: name.to_string(),
             value: CustomPropValue::Pin(v),
         })(prop_code)?,
         _ => return Err(Err::Error(Error::new(s, ErrorKind::Fail))),
@@ -79,7 +79,7 @@ mod tests {
             Ok((
                 "",
                 CustomProp {
-                    name: "Pin".to_string(),
+                    domain: "Pin".to_string(),
                     value: CustomPropValue::Pin(vec![
                         Prop {
                             key: "PinId".to_owned(),

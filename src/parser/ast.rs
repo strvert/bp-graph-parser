@@ -32,7 +32,7 @@ pub enum CustomPropValue {
 
 #[derive(Debug, PartialEq)]
 pub struct CustomProp {
-    pub name: String,
+    pub domain: String,
     pub value: CustomPropValue,
 }
 
