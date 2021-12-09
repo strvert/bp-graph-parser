@@ -14,9 +14,16 @@ pub enum PropValue {
     Boolean(bool),
     Uuid(Uuid),
     NslocText(String, String, String),
-    Object(String, String),
+    ObjectReference(String, String),
     LinkedToList(Vec<LinkedTo>),
     PropList(Vec<Prop>),
+}
+
+#[derive(Debug, PartialEq)]
+pub enum ObjectElement {
+    Prop(Prop),
+    CustomProp(CustomProp),
+    Object(Object),
 }
 
 #[derive(Debug, PartialEq)]
@@ -37,7 +44,18 @@ pub struct CustomProp {
 }
 
 #[derive(Debug, PartialEq)]
+pub struct ObjectHeader {
+    pub object_type: String,
+    pub header_props: Vec<Prop>,
+}
+
+#[derive(Debug, PartialEq)]
 pub struct Object {
-    pub props: Vec<Prop>,
-    pub custom_props: Vec<CustomProp>,
+    pub header: ObjectHeader,
+    pub elements: Vec<ObjectElement>,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct ObjectEnd {
+    pub object_type: String,
 }

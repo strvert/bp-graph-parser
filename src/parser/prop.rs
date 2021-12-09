@@ -12,7 +12,7 @@ use nom::{
 };
 
 use super::{
-    ast::{CustomProp, CustomPropValue, LinkedTo, Prop, PropValue},
+    ast::{CustomProp, CustomPropValue, Prop, PropValue, LinkedTo},
     literal::{
         boolean, double, kv_list_literal, linkedto_list_literal, nsloc_text_literal,
         object_literal, string_literal, uuid_literal,
@@ -25,7 +25,7 @@ pub fn prop_value(s: &str) -> IResult<&str, PropValue> {
         map(uuid_literal, |v| PropValue::Uuid(v)),
         map(string_literal, |v| PropValue::String(v)),
         map(nsloc_text_literal, |v| PropValue::NslocText(v.0, v.1, v.2)),
-        map(object_literal, |v| PropValue::Object(v.0, v.1)),
+        map(object_literal, |v| PropValue::ObjectReference(v.0, v.1)),
         map(double, |v| PropValue::Double(v)),
         map(complete::i64, |v| PropValue::Integer(v)),
         map(kv_list_literal, |v| PropValue::PropList(v)),
@@ -109,7 +109,7 @@ mod tests {
                         },
                         Prop {
                             key: "PinType.PinSubCategoryObject".to_owned(),
-                            value: PropValue::Object(
+                            value: PropValue::ObjectReference(
                                 "Class".to_owned(),
                                 "/Script/UMG.Button".to_owned()
                             )
@@ -120,7 +120,7 @@ mod tests {
                         },
                         Prop {
                             key: "PinType.ContainerType".to_owned(),
-                            value: PropValue::Object("None".to_owned(), "None".to_owned())
+                            value: PropValue::ObjectReference("None".to_owned(), "None".to_owned())
                         },
                         Prop {
                             key: "PinType.bIsReference".to_owned(),
@@ -279,7 +279,7 @@ mod tests {
                 "",
                 Prop {
                     key: "PinType.PinSubCategoryObject".to_string(),
-                    value: PropValue::Object(
+                    value: PropValue::ObjectReference(
                         "Class".to_string(),
                         "/Script/Engine.GameplayStatics".to_string()
                     )
@@ -292,7 +292,7 @@ mod tests {
                 "",
                 Prop {
                     key: "PinType.PinSubCategoryObject".to_string(),
-                    value: PropValue::Object("None".to_string(), "None".to_string())
+                    value: PropValue::ObjectReference("None".to_string(), "None".to_string())
                 }
             ))
         );

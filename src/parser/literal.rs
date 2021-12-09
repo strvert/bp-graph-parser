@@ -1,6 +1,6 @@
 use nom::{
     branch::{alt, permutation},
-    bytes::complete::{escaped_transform, tag, take_till1, take_until1, take_while_m_n},
+    bytes::complete::{escaped_transform, tag, take_until1, take_while_m_n},
     character::{
         complete,
         complete::{alphanumeric1, char, digit1, multispace0, none_of, space1},
@@ -257,7 +257,7 @@ mod tests {
                     },
                     Prop {
                         key: "PinType.PinSubCategoryObject".to_owned(),
-                        value: PropValue::Object(
+                        value: PropValue::ObjectReference(
                             "Class".to_owned(),
                             "/Script/Engine.GameplayStatics".to_owned()
                         )
@@ -271,7 +271,10 @@ mod tests {
                         value: PropValue::PropList(vec![
                             Prop {
                                 key: "PinType.ContainerType".to_owned(),
-                                value: PropValue::Object("None".to_owned(), "None".to_owned())
+                                value: PropValue::ObjectReference(
+                                    "None".to_owned(),
+                                    "None".to_owned()
+                                )
                             },
                             Prop {
                                 key: "PinType.bIsReference".to_owned(),
@@ -282,7 +285,7 @@ mod tests {
                                 value: PropValue::PropList(vec![
                                     Prop {
                                         key: "PinType.ContainerType".to_owned(),
-                                        value: PropValue::Object(
+                                        value: PropValue::ObjectReference(
                                             "None".to_owned(),
                                             "None".to_owned()
                                         )
@@ -303,7 +306,7 @@ mod tests {
                     },
                     Prop {
                         key: "MemberParent".to_owned(),
-                        value: PropValue::Object(
+                        value: PropValue::ObjectReference(
                             "BlueprintGeneratedClass".to_owned(),
                             "/Game/Blueprints/PlayerCharacter.PlayerCharacter_C".to_owned()
                         )

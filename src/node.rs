@@ -1,5 +1,5 @@
-use crate::pin::Pin;
-use uuid::Uuid;
+// use crate::pin::Pin;
+// use uuid::Uuid;
 
 #[derive(Debug, PartialEq)]
 pub struct FunctionReference {
@@ -28,13 +28,13 @@ pub enum Nodes {
     },
 }
 
-#[derive(Debug)]
-pub struct Node {
-    pub class: String,
-    pub name: String,
-    pub pos_x: i32,
-    pub pos_y: i32,
-    pub guid: Uuid,
-    pub pins: Vec<Pin>,
-    pub props: Nodes,
-}
+// #[derive(Debug)]
+// pub struct Node {
+//     pub class: String,
+//     pub name: String,
+//     pub pos_x: i32,
+//     pub pos_y: i32,
+//     pub guid: Uuid,
+//     pub pins: Vec<Pin>,
+//     pub props: Nodes,
+// }

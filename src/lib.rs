@@ -1,15 +1,12 @@
-use anyhow::{Context, Result};
-use node::Node;
-
 pub mod common;
 pub mod node;
 pub mod parser;
 pub mod pin;
 
-pub fn parse_graph(_graph_code: &str) -> String {
-    "".to_string()
-    // let tokens = parser::tokenize(&graph_code);
-    // "hoge".to_string()
+use parser::ast::Object;
+
+pub fn parse_graph(graph_code: &str) -> Object {
+    parser::object::object(graph_code).unwrap().1
 }
 
 // pub fn to_json(k2node_code: &str) -> Result<String> {

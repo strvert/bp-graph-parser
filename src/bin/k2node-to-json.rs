@@ -1,7 +1,7 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
+use bp_graph_parser::parse_graph;
 use clap::{App, Arg};
 use std::fs;
-use bp_graph_parser::parse_graph;
 
 pub fn main() -> Result<()> {
     let matches = App::new("k2node to json")
@@ -23,7 +23,7 @@ pub fn main() -> Result<()> {
     };
 
     let tree = parse_graph(&graph_code);
-    println!("{:?}", tree);
+    println!("{:#?}", tree);
 
     Ok(())
 }
