@@ -2,7 +2,6 @@ pub mod parser;
 
 use anyhow::{anyhow, Result};
 use parser::ast::Objects;
-use wasm_bindgen::prelude::*;
 
 /// Parses the serialized text representing the Object and stores the information in the Object
 /// structure.
@@ -26,14 +25,5 @@ pub fn to_json(objects_code: &str, pretty: bool) -> Result<String> {
         Ok(serde_json::to_string_pretty(&obj)?)
     } else {
         Ok(serde_json::to_string(&obj)?)
-    }
-}
-
-#[cfg(feature="js")]
-#[wasm_bindgen]
-pub fn to_json_wasm(objects_code: &str) -> Option<String> {
-    match to_json(objects_code, false) {
-        Ok(obj) => Some(obj),
-        Err(_) => None,
     }
 }
