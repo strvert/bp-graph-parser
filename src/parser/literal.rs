@@ -19,6 +19,7 @@ use super::{
     prop::prop_kv,
 };
 
+/// A parser of string literals.
 pub fn string_literal(s: &str) -> IResult<&str, String> {
     alt((
         delimited(
@@ -41,6 +42,7 @@ pub fn string_literal(s: &str) -> IResult<&str, String> {
     ))(s)
 }
 
+/// A parser of uuil literals.
 pub fn uuid_literal(s: &str) -> IResult<&str, Uuid> {
     let r = map_res(
         take_while_m_n(32, 32, |ch| is_hex_digit(ch as u8)),
@@ -53,6 +55,7 @@ pub fn uuid_literal(s: &str) -> IResult<&str, Uuid> {
     }
 }
 
+/// A parser for floating point numbers (f64).
 pub fn double(s: &str) -> IResult<&str, f64> {
     map(
         permutation((complete::i64, char('.'), digit1)),
@@ -67,6 +70,7 @@ pub fn double(s: &str) -> IResult<&str, f64> {
     )(s)
 }
 
+/// A parser of boolean.
 pub fn boolean(s: &str) -> IResult<&str, bool> {
     map_res(alt((tag("True"), tag("False"))), |v| match v {
         "True" => Ok(true),
@@ -75,6 +79,7 @@ pub fn boolean(s: &str) -> IResult<&str, bool> {
     })(s)
 }
 
+/// A parser for lists of linked_object_literal.
 pub fn linkedto_list_literal(s: &str) -> IResult<&str, Vec<LinkedTo>> {
     alt((
         map(tag("()"), |_| Vec::new()),
@@ -89,6 +94,7 @@ pub fn linkedto_list_literal(s: &str) -> IResult<&str, Vec<LinkedTo>> {
     ))(s)
 }
 
+/// A parser of literals that represents a list of key/value.
 pub fn kv_list_literal(s: &str) -> IResult<&str, Vec<Prop>> {
     alt((
         map(tag("()"), |_| Vec::new()),
@@ -100,6 +106,7 @@ pub fn kv_list_literal(s: &str) -> IResult<&str, Vec<Prop>> {
     ))(s)
 }
 
+/// A parser for NSLOCTEXT literals.
 pub fn nsloc_text_literal(s: &str) -> IResult<&str, (String, String, String)> {
     let sp = permutation((multispace0, alt((tag(","), tag(""))), multispace0));
     map(
@@ -118,6 +125,7 @@ pub fn nsloc_text_literal(s: &str) -> IResult<&str, (String, String, String)> {
     )(s)
 }
 
+/// An object reference literal parser.
 pub fn object_literal(s: &str) -> IResult<&str, (String, String)> {
     alt((
         map(tag("None"), |_| ("None".to_string(), "None".to_string())),
@@ -128,6 +136,7 @@ pub fn object_literal(s: &str) -> IResult<&str, (String, String)> {
     ))(s)
 }
 
+/// A parser of literals representing the node's connection destination.
 pub fn linked_object_literal(s: &str) -> IResult<&str, LinkedTo> {
     map(permutation((take_until1(" "), space1, uuid_literal)), |v| {
         LinkedTo {

@@ -1,4 +1,4 @@
-# ue-serialized-text-parser
+# ue-object-reader
 
 UnrealEngineから得られるオブジェクトのテキスト表現データのパーサー。開発中。
 

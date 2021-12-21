@@ -19,6 +19,7 @@ use super::{
     },
 };
 
+/// A parser for any PropValue of an object.
 pub fn prop_value(s: &str) -> IResult<&str, PropValue> {
     alt((
         map(boolean, |v| PropValue::Boolean(v)),
@@ -34,6 +35,7 @@ pub fn prop_value(s: &str) -> IResult<&str, PropValue> {
     ))(s)
 }
 
+/// A parser for any object Prop in key/value format.
 pub fn prop_kv(s: &str) -> IResult<&str, Prop> {
     let (s, (_, key, _, _, _, value)) = permutation((
         multispace0,
@@ -52,6 +54,7 @@ pub fn prop_kv(s: &str) -> IResult<&str, Prop> {
     ))
 }
 
+/// A parser for the CustomProperties syntax.
 pub fn prop_custom_props(s: &str) -> IResult<&str, CustomProp> {
     let (ns, (_, _, name, _)) =
         permutation((tag("CustomProperties"), space1, alphanumeric1, space1))(s)?;
@@ -129,7 +132,7 @@ mod tests {
                         },
                         Prop {
                             key: "LinkedTo".to_owned(),
-                            value: PropValue::LinkedToList(vec![LinkedTo {
+                            value: PropValue::LinkedToList(vec![crate::parser::ast::LinkedTo {
                                 name: "K2Node_VariableGet_17".to_owned(),
                                 uuid: Uuid::parse_str("570BAD4542CBB0285413EEAB4F6DBDDA").unwrap()
                             }])

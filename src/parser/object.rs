@@ -1,7 +1,7 @@
 use crate::parser::prop::prop_custom_props;
 
 use super::{
-    ast::{Object, ObjectElement, ObjectEnd, ObjectHeader, Prop, PropValue},
+    ast::{Object, ObjectElement, ObjectEnd, ObjectHeader, Objects, Prop, PropValue},
     prop::prop_kv,
 };
 use nom::{
@@ -13,6 +13,7 @@ use nom::{
     IResult,
 };
 
+/// Parser for object elements (Key / Value properties, custom properties).
 pub fn object_content(s: &str) -> IResult<&str, Vec<ObjectElement>> {
     let mut remain = s;
     let mut retobj = Vec::new();
@@ -40,6 +41,7 @@ pub fn object_content(s: &str) -> IResult<&str, Vec<ObjectElement>> {
     Ok((remain, retobj))
 }
 
+/// Parse for object start line.
 pub fn object_begin(s: &str) -> IResult<&str, ObjectHeader> {
     let (remain, (_, object_type)) = permutation((tag("Begin "), alphanumeric1))(s)?;
 
@@ -70,6 +72,7 @@ pub fn object_begin(s: &str) -> IResult<&str, ObjectHeader> {
     ))
 }
 
+/// Parse for object end line.
 pub fn object_end(s: &str) -> IResult<&str, ObjectEnd> {
     map(
         permutation((
@@ -83,6 +86,7 @@ pub fn object_end(s: &str) -> IResult<&str, ObjectEnd> {
     )(s)
 }
 
+/// Parse for a single object.
 pub fn object(s: &str) -> IResult<&str, Object> {
     map(
         permutation((object_begin, object_content, object_end)),
@@ -93,8 +97,12 @@ pub fn object(s: &str) -> IResult<&str, Object> {
     )(s)
 }
 
-pub fn objects(s: &str) -> IResult<&str, Vec<Object>> {
-    many1(map(permutation((object, multispace0)), |v| v.0))(s)
+/// Parser for multiple objects.
+pub fn objects(s: &str) -> IResult<&str, Objects> {
+    map(
+        many1(map(permutation((object, multispace0)), |v| v.0)),
+        |v| Objects(v),
+    )(s)
 }
 
 #[cfg(test)]
@@ -107,8 +115,6 @@ mod tests {
 
     #[test]
     fn parse_nested_object() {
-        let sample = r#"Begin Object
-End Object"#;
     }
 
     #[test]
